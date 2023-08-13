@@ -29,11 +29,15 @@ CUDA：12.1
 
 ## 实现思路
 
-<div>			<!--块级封装-->
+<div align=center>			<!--块级封装-->
     <center>	<!--将图片和文字居中-->
     <img src="MDimages/usecase.png"
          alt="无法显示图片时显示的文字"
          style="zoom:50%"/>
+    </center>
+</div>
+<div align=center>
+    <center>
     <br>		<!--换行-->
     图1. 系统用例图示意	<!--标题-->
     </center>
@@ -61,12 +65,16 @@ one-stage即一步到位，同时进行锚框和像素级别的分割掩码的�
 
 two-stage即顺次进行，先进行目标检测定位感兴趣区域（ROI），然后对目标区域进行语义分割。为实现这种模式，我选用了YOLOv8模型（同为M Size）来进行目标检测，识别出单个的草莓，进而使用U-Net这一经典的语义分割模型实现语义分割。为进一步提升性能，增强模型效果，我选用ResNet-34[^2]的结构替换U-Net[^3]原有的Encode部分，并使用残差块替换掉所有的双层卷积块，便于在更深层次的卷积中保持较好性能。
 
-<div>			<!--块级封装-->
+<div align=center>			<!--块级封装-->
     <center>	<!--将图片和文字居中-->
     <img src="MDimages/model.png"
          alt="无法显示图片时显示的文字"
          style="zoom:100%"/>
     <br>		<!--换行-->
+    </center>
+</div>
+<div align=center>
+    <center>
     图2. ResNet-UNet示意	<!--标题-->
     </center>
 </div>
@@ -297,44 +305,57 @@ print("Recall:", f"{recall / len(os.listdir(r'F:/strawberry/masks/images/val')):
 ## 结果展示
 
 ### 模型训练
-
+<div align=center>
 <center class="half">
     <img src="MDimages/segment-results.png" width="400"/>
     <img src="MDimages/detect-results.png" width="250"/>
 </center>
+</div>
+<div align=center>
 <center>图3.YOLOv8-seg（左）和YOLOv8（右）模型的训练结果</center>
-
+</div>
 最终，YOLOv8-seg模型在验证集上取得了0.9553（Precision）、0.8618（Recall）、0.9265（mAP50）的成绩，YOLOv8模型在验证集上取得了0.9452（Precision）、0.9258（Recall）、0.9530（mAP50）的成绩。ResNet34-UNet在验证集上取得了0.9131（Precision）、0.9257（Recall）的成绩。
 
 ### 预测效果
-
+<div align=center>
 <center class="half">
     <img src="MDimages/output.png" width="300"/>
     <img src="MDimages/output1.png" width="300"/>
 </center>
+</div>
+<div align=center>
 <center>图4.YOLOv8-seg（左）和YOLOv8+U-Net（右）模型的预测结果</center>
-
+</div>
 在10轮循环中，YOLOv8-seg运行的平均时长为5.35s，而YOLOv8+U-Net运行的平均时长为5.09s，速度提升约5%。
 
 在预测的结果中，可以明显看出YOLOv8-seg的效果更好，正确地找到了所有的草莓，甚至包括左上角极小的草莓。而组合模型的效果则是要差一些，正面被叶子遮挡的草莓并没有准确识别到，左上角极小的草莓也没有识别到。
 
-<center class="half">
-<img src="MDimages/output2.png" width="300"/>
-<img src="MDimages/output3.png" width="300"/>
-    <br></br>
-<img src="MDimages/output4.png" width="250"/>
-<img src="MDimages/output5.png" width="250"/>
-<center>图5.YOLOv8-seg（左）和YOLOv8+U-Net（右）模型的泛化预测结果</center>
-</center>
+<div align=center>
+  <center class="half">
+  <img src="MDimages/output2.png" width="300"/>
+  <img src="MDimages/output3.png" width="300"/>
+  </center>
+</div>
+<div align=center>
+  <center class="half">
+  <img src="MDimages/output4.png" width="250"/>
+  <img src="MDimages/output5.png" width="250"/>
+  </center>
+</div>
+<div align=center>
+  <center>图5.YOLOv8-seg（左）和YOLOv8+U-Net（右）模型的泛化预测结果</center>
+</div>
 
 
 为测试泛化性，我从网上下载了两张图片，可以看出，第一张与数据集环境较为接近，而第二张与数据集环境、形态差异都很大。就结果来看，第一张图片两种模型都成功识别并定位到草莓，但是对于红色区域比例的计算方面，YOLOv8+U-Net组合的效果明显更可靠。第二张图片YOLOv8-seg模型并没有识别到草莓，而组合模型虽然识别到但并不准确，由此看来，二者皆具备一定程度上的泛化能力，但受限于数据集规模，并没有更强的泛化性。YOLOv8+U-Net的组合模型在成熟度计算方面优势更大。综上推断，YOLOv8-seg模型在数据集上出现了一定的过拟合现象。
 
 ---------------------------------------------2023.8.13更新------------------------------------------------
-
+<div align=center>
 <img src="MDimages/output_video.gif"/>
+</div>
+<div align=center>
 <center>图6.YOLOv8-seg（左）和YOLOv8+U-Net（右）模型的预测结果（视频限制帧率为10）</center>
-
+</div>
 测试视频节选自https://www.youtube.com/watch?v=wE-NyfIEQmA。同样考验了两个模型的泛化性强弱。
 
 在15轮循环中，YOLOv8-seg的平均用时为76.77s，YOLOv8+U-Net的组合模型平均用时为15.39s，组合模型的实际帧数约为单独模型的5倍，在[测试平台](#环境配置)上，组合模型FPS约可达到5FPS。两个更加轻量化的模型组合起来，体现出了速度上的巨大优势。且从效果上来看，右侧的组合模型更加稳定准确。
