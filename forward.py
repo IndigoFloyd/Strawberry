@@ -284,40 +284,4 @@ class Strawberry:
 
 # s = Strawberry(r"D:\Projects\Python\gitstrawberry\strawberry_cut.mp4", mode="video-seg")
 
-# 加载两个视频
-video1_path = 'video_segment.mp4'
-video2_path = 'video_detect.mp4'
-cap1 = cv2.VideoCapture(video1_path)
-cap2 = cv2.VideoCapture(video2_path)
 
-# 获取帧宽度和帧高度
-frame_width = int(cap1.get(cv2.CAP_PROP_FRAME_WIDTH))
-frame_height = int(cap1.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-# 创建输出视频
-output_width = frame_width * 2 + 10
-output_height = frame_height
-out = cv2.VideoWriter('output_video.mp4', cv2.VideoWriter_fourcc(*'H264'), 10, (output_width, output_height))
-
-while cap1.isOpened() and cap2.isOpened():
-    ret1, frame1 = cap1.read()
-    ret2, frame2 = cap2.read()
-
-    if not ret1 or not ret2:
-        break
-
-    # 水平拼接并留出黑色分割
-    black = np.zeros((360, 10, 3), dtype=np.uint8)
-    print(frame1.shape, black.shape)
-    black_frame = cv2.hconcat([frame1, black])
-    combined_frame = cv2.hconcat([black_frame, frame2])
-
-
-    # 写入输出视频
-    out.write(combined_frame)
-
-# 释放资源
-cap1.release()
-cap2.release()
-out.release()
-cv2.destroyAllWindows()
