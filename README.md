@@ -332,7 +332,7 @@ print("Recall:", f"{recall / len(os.listdir(r'F:/strawberry/masks/images/val')):
 
 ---------------------------------------------2023.8.13更新------------------------------------------------
 
-<video src="MDimages/output_video.mp4"></video>
+<img src="MDimages/output_video.gif"/>
 <center>图6.YOLOv8-seg（左）和YOLOv8+U-Net（右）模型的预测结果（视频限制帧率为10）</center>
 
 测试视频节选自https://www.youtube.com/watch?v=wE-NyfIEQmA。同样考验了两个模型的泛化性强弱。
