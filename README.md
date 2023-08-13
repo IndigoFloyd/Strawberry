@@ -315,7 +315,34 @@ print("Recall:", f"{recall / len(os.listdir(r'F:/strawberry/masks/images/val')):
 <center>图3.YOLOv8-seg（左）和YOLOv8（右）模型的训练结果</center>
 </div>
 最终，YOLOv8-seg模型在验证集上取得了0.9553（Precision）、0.8618（Recall）、0.9265（mAP50）的成绩，YOLOv8模型在验证集上取得了0.9452（Precision）、0.9258（Recall）、0.9530（mAP50）的成绩。ResNet34-UNet在验证集上取得了0.9131（Precision）、0.9257（Recall）的成绩。
-
+<div align=center>
+<table>
+    <tr>
+        <td>Model</td>
+        <td>Precision</td>
+        <td>Recall</td>
+        <td>mAP-50</td>
+    </tr>
+    <tr>
+        <td>YOLOv8m-seg</td>
+        <td>0.9553</td>
+        <td>0.8618</td>
+        <td>0.9265</td>
+    </tr>
+    <tr>
+        <td>YOLOv8</td>
+        <td>0.9452</td>
+        <td>0.9258</td>
+        <td>0.9530</td>
+    </tr>
+    <tr>
+        <td>ResNet34 + U-Net</td>
+        <td>0.9131</td>
+        <td>0.9257</td>
+        <td>\</td>
+    </tr>
+</table>
+</div>
 ### 预测效果
 <div align=center>
 <center class="half">
