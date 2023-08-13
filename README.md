@@ -356,7 +356,7 @@ print("Recall:", f"{recall / len(os.listdir(r'F:/strawberry/masks/images/val')):
 <div align=center>
 <center>图6.YOLOv8-seg（左）和YOLOv8+U-Net（右）模型的预测结果（视频限制帧率为10）</center>
 </div>
-测试视频节选自[https://www.youtube.com/watch?v=wE-NyfIEQmA](https://www.youtube.com/watch?v=wE-NyfIEQmA)。同样考验了两个模型的泛化性强弱。
+测试视频节选自https://www.youtube.com/watch?v=wE-NyfIEQmA 。同样考验了两个模型的泛化性强弱。
 
 在15轮循环中，YOLOv8-seg的平均用时为76.77s，YOLOv8+U-Net的组合模型平均用时为15.39s，组合模型的实际帧数约为单独模型的5倍，在[测试平台](#环境配置)上，组合模型FPS约可达到5FPS。两个更加轻量化的模型组合起来，体现出了速度上的巨大优势。且从效果上来看，右侧的组合模型更加稳定准确。
 
