@@ -10,7 +10,6 @@ class Strawberry:
     def __init__(self, imgPath, outPath='./', mode="segment"):
         self.imgPath = imgPath
         self.outPath = outPath
-        self.img = cv2.imread(self.imgPath)
         # 用于最终裁剪黑色部分
         self.finalsize = (0, 0)
         # hsv_img = cv2.cvtColor(self.img, cv2.COLOR_BGR2HSV)
@@ -20,9 +19,53 @@ class Strawberry:
         # self.img = cv2.GaussianBlur(self.img, (15, 15), 5)
         if mode == "segment":
             self.model = onnx.InferenceSession(r"D:\Projects\Python\Strawberry\models/YOLOV8m-seg/last.onnx", providers=['CUDAExecutionProvider'])
+            self.img = cv2.imread(self.imgPath)
         elif mode == "detect":
             self.model1 = onnx.InferenceSession(r"D:\Projects\Python\Strawberry\models/YOLOV8m/last_detect.onnx", providers=['CUDAExecutionProvider'])
             self.model2 = onnx.InferenceSession(r"D:\Projects\Python\Strawberry\models/YOLOV8m/model.onnx", providers=['CUDAExecutionProvider'])
+            self.img = cv2.imread(self.imgPath)
+        elif mode == "video-seg":
+            cap = cv2.VideoCapture(self.imgPath)
+            ret, frame1 = cap.read()
+            self.cut(frame1)  # 为了设置帧的宽高
+            # print(self.finalsize)
+            outwriter = cv2.VideoWriter(f"{outPath}/video_segment.mp4", cv2.VideoWriter_fourcc(*'H264'), 10, (self.finalsize[0], self.finalsize[1]))
+            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))  # 总帧数
+            n = 0
+            self.model = onnx.InferenceSession(r"D:\Projects\Python\Strawberry\models/YOLOV8m-seg/last.onnx", providers=['CUDAExecutionProvider'])
+            while cap.isOpened():
+                ret, frame = cap.read()
+                if not ret:
+                    break
+                n += 1
+                print(f"Now {n} / {total_frames}, {n / total_frames:.2f}")
+                self.img = frame
+                self.red(self.segment())
+                self.output(isvideo=True, outwriter=outwriter)
+            cap.release()
+            outwriter.release()
+        elif mode == "video-detect":
+            cap = cv2.VideoCapture(self.imgPath)
+            ret, frame1 = cap.read()
+            self.cut(frame1)  # 为了设置帧的宽高
+            # print(self.finalsize)
+            outwriter = cv2.VideoWriter(f"{outPath}/video_detect.mp4", cv2.VideoWriter_fourcc(*'H264'), 10, (self.finalsize[0], self.finalsize[1]))
+            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))  # 总帧数
+            n = 0
+            self.model1 = onnx.InferenceSession(r"D:\Projects\Python\Strawberry\models/YOLOV8m/last_detect.onnx", providers=['CUDAExecutionProvider'])
+            self.model2 = onnx.InferenceSession(r"D:\Projects\Python\Strawberry\models/YOLOV8m/model.onnx", providers=['CUDAExecutionProvider'])
+            while cap.isOpened():
+                ret, frame = cap.read()
+                if not ret:
+                    break
+                n += 1
+                print(f"Now {n} / {total_frames}, {n / total_frames:.2f}")
+                self.img = frame
+                self.red(self.detect())
+                self.output(isvideo=True, outwriter=outwriter)
+            cap.release()
+            outwriter.release()
+
 
     def sigmoid(self, n):
         return 1 / (1 + np.exp(-n))
@@ -212,16 +255,69 @@ class Strawberry:
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    def output(self):
-        out = self.img[:self.finalsize[1], :self.finalsize[0]]
-        cv2.imwrite(f"{self.outPath}/output5.png", out)
+    def output(self, isvideo=False, outwriter=None):
+        if isvideo:
+            out = self.img[:self.finalsize[1], :self.finalsize[0]]
+            outwriter.write(out)
+        else:
+            out = self.img[:self.finalsize[1], :self.finalsize[0]]
+            cv2.imwrite(f"{self.outPath}/output5.png", out)
 
-time_total = 0
-for _ in range(1):
-    start = time.time()
-    s = Strawberry(r"D:\Projects\Python\Strawberry\U7hW5B86sL.jpg", mode="detect")
-    s.red(s.detect())
-    s.output()
-    end = time.time()
-    time_total += end-start
-print(f"{time_total:.2f}")
+# time_total = 0
+# for _ in range(1):
+#     start = time.time()
+#     s = Strawberry(r"D:\Projects\Python\Strawberry\U7hW5B86sL.jpg", mode="video-seg")
+#     s.red(s.detect())
+#     s.output()
+#     end = time.time()
+#     time_total += end-start
+# print(f"{time_total:.2f}")
+
+# time_total = 0
+# for _ in range(15):
+#     start = time.time()
+#     s = Strawberry(r"D:\Projects\Python\gitstrawberry\strawberry_cut.mp4", mode="video-seg")
+#     end = time.time()
+#     time_total += end - start
+#     print(end - start)
+# print(f"{time_total / 15:.2f}")
+
+# s = Strawberry(r"D:\Projects\Python\gitstrawberry\strawberry_cut.mp4", mode="video-seg")
+
+# 加载两个视频
+video1_path = 'video_segment.mp4'
+video2_path = 'video_detect.mp4'
+cap1 = cv2.VideoCapture(video1_path)
+cap2 = cv2.VideoCapture(video2_path)
+
+# 获取帧宽度和帧高度
+frame_width = int(cap1.get(cv2.CAP_PROP_FRAME_WIDTH))
+frame_height = int(cap1.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+# 创建输出视频
+output_width = frame_width * 2 + 10
+output_height = frame_height
+out = cv2.VideoWriter('output_video.mp4', cv2.VideoWriter_fourcc(*'H264'), 10, (output_width, output_height))
+
+while cap1.isOpened() and cap2.isOpened():
+    ret1, frame1 = cap1.read()
+    ret2, frame2 = cap2.read()
+
+    if not ret1 or not ret2:
+        break
+
+    # 水平拼接并留出黑色分割
+    black = np.zeros((360, 10, 3), dtype=np.uint8)
+    print(frame1.shape, black.shape)
+    black_frame = cv2.hconcat([frame1, black])
+    combined_frame = cv2.hconcat([black_frame, frame2])
+
+
+    # 写入输出视频
+    out.write(combined_frame)
+
+# 释放资源
+cap1.release()
+cap2.release()
+out.release()
+cv2.destroyAllWindows()
